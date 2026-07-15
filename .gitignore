@@ -104,3 +104,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+/Capstone - Starter Kit/Library/Artifacts
+/Capstone - Starter Kit/Library/Bee/artifacts
+/Capstone - Starter Kit/Library
+/Capstone - Starter Kit/Temp

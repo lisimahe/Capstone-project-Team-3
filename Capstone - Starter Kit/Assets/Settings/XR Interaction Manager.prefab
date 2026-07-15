@@ -505,14 +505,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa807c92307a1142aff5d4fad1dc5e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isXRInteractions: 1
+  IsXRInteractions: 0
+  inputActionManger: {fileID: 0}
   XRControls:
   - {fileID: 5583054507617725960}
   - {fileID: 2649033409286466302}
   - {fileID: 4196429311518008659}
   - {fileID: 7862744179988144941}
   XRRig: {fileID: 6297378574129550658}
-  XRKeyboard: {fileID: 2063927492404185182}
+  XRDesktop: {fileID: 0}
+  playerModel: {fileID: 0}
+  PlayerInput: {fileID: 0}
+  origin: {fileID: 0}
+  target: {fileID: 0}
+  InputManager: {fileID: 0}
 --- !u!1 &3447445344695493050
 GameObject:
   m_ObjectHideFlags: 0
@@ -1452,12 +1458,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &5583054507617725960
 GameObject:
   m_ObjectHideFlags: 0
@@ -2839,12 +2845,6 @@ PrefabInstance:
 --- !u!4 &2063927492404185168 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6598815579406187027, guid: 9f5a24a380916d14db9775daab4fe333,
-    type: 3}
-  m_PrefabInstance: {fileID: 5131632767326204483}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2063927492404185182 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6598815579406187037, guid: 9f5a24a380916d14db9775daab4fe333,
     type: 3}
   m_PrefabInstance: {fileID: 5131632767326204483}
   m_PrefabAsset: {fileID: 0}

@@ -1916,8 +1916,8 @@ Transform:
   m_GameObject: {fileID: 290772515}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.93, y: 1.12, z: -8.09}
-  m_LocalScale: {x: 5.159558, y: 1, z: 1}
+  m_LocalPosition: {x: -1.3671, y: 1.12, z: -8.42}
+  m_LocalScale: {x: 5.5808372, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -1934,11 +1934,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &290772518
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1958,8 +1959,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0000001, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.000000059604645, z: 0}
 --- !u!23 &290772519
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2696,8 +2697,8 @@ Transform:
   m_GameObject: {fileID: 459419020}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.8141, y: 1.12, z: -3.28}
-  m_LocalScale: {x: 7.322815, y: 1, z: 1}
+  m_LocalPosition: {x: -3.4049, y: 1.12, z: -3.2176}
+  m_LocalScale: {x: 7.920725, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -2714,11 +2715,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &459419023
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2739,7 +2741,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0.00000011920929, y: 0.000000059604645, z: 0}
 --- !u!23 &459419024
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4133,8 +4135,8 @@ Transform:
   m_GameObject: {fileID: 685662190}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.2, y: 1.12, z: -8.09}
-  m_LocalScale: {x: 1.5453392, y: 1, z: 1}
+  m_LocalPosition: {x: -18.965, y: 1.12, z: -8.42}
+  m_LocalScale: {x: 1.6715165, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -4151,11 +4153,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &685662193
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4175,8 +4178,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.99999994, y: 1, z: 1}
+  m_Center: {x: -0.0000009536743, y: 0.000000059604645, z: 0}
 --- !u!23 &685662194
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4451,8 +4454,8 @@ Transform:
   m_GameObject: {fileID: 749736951}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.06, y: 1.12, z: -3.28}
-  m_LocalScale: {x: 7.322815, y: 1, z: 1}
+  m_LocalPosition: {x: -12.323, y: 1.12, z: -3.2176}
+  m_LocalScale: {x: 7.920725, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -4469,11 +4472,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &749736954
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4494,7 +4498,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.000000059604645, z: 0}
 --- !u!23 &749736955
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5795,11 +5799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 986862121}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6584613354768528393, guid: bae26acf817c6dc4e82f95d9ef4ab46a,
         type: 3}
@@ -5826,12 +5826,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anchor: {fileID: 0}
   provider: {fileID: 0}
---- !u!4 &936551837 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5776691538091650739, guid: bae26acf817c6dc4e82f95d9ef4ab46a,
-    type: 3}
-  m_PrefabInstance: {fileID: 936551832}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &938012725
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6284,12 +6278,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 986862120}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.81, y: -0.73, z: -4.77}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -28.09334, y: 2.4516425, z: -67.15}
+  m_LocalScale: {x: 1.6769948, y: 1.6769948, z: 1.6769948}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 936551837}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &989782073
 PrefabInstance:
@@ -7219,8 +7213,8 @@ Transform:
   m_GameObject: {fileID: 1160751527}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.11, y: 1.12, z: 0}
-  m_LocalScale: {x: 2.8649232, y: 1, z: 1}
+  m_LocalPosition: {x: -6.9699, y: 1.12, z: 0.33007}
+  m_LocalScale: {x: 3.0988452, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -7237,11 +7231,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &1160751530
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7262,7 +7257,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.000000059604645, z: -0.0000019073486}
 --- !u!23 &1160751531
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7681,8 +7676,8 @@ Transform:
   m_GameObject: {fileID: 1196857248}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.3, y: 1.12, z: 0}
-  m_LocalScale: {x: 5.23321, y: 1, z: 1}
+  m_LocalPosition: {x: -0.68569, y: 1.12, z: 0.33007}
+  m_LocalScale: {x: 5.660504, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -7699,11 +7694,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &1196857251
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7724,7 +7720,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0.00000011920929, y: 0.000000059604645, z: -0.0000019073486}
 --- !u!23 &1196857252
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8856,6 +8852,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ecc15abaa2d4963428bdf7fc9eb09410, type: 3}
+--- !u!1 &1380265349
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1380265350}
+  m_Layer: 0
+  m_Name: TeleportBackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1380265350
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1380265349}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.71503365, z: -0, w: -0.69909006}
+  m_LocalPosition: {x: -32.69876, y: 1.18, z: -64.25246}
+  m_LocalScale: {x: 1, y: 1.8433375, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1404153560
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9813,8 +9840,8 @@ Transform:
   m_GameObject: {fileID: 1587562753}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.58, y: 1.12, z: -8.09}
-  m_LocalScale: {x: 9.116632, y: 1, z: 1}
+  m_LocalPosition: {x: -11.804, y: 1.12, z: -8.42}
+  m_LocalScale: {x: 9.861008, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -9831,11 +9858,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &1587562756
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9855,8 +9883,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.0000001, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.000000059604645, z: 0}
 --- !u!23 &1587562757
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11117,8 +11145,8 @@ Transform:
   m_GameObject: {fileID: 1764503774}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.24, y: 1.12, z: 0}
-  m_LocalScale: {x: 7.8518953, y: 1, z: 1}
+  m_LocalPosition: {x: -14.681, y: 1.12, z: 0.33007}
+  m_LocalScale: {x: 8.493005, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -11135,11 +11163,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &1764503777
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11159,8 +11188,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.99999994, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.000000059604645, z: -0.0000019073486}
 --- !u!23 &1764503778
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12264,8 +12293,8 @@ Transform:
   m_GameObject: {fileID: 1993016303}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -18.02, y: 1.12, z: -3.28}
-  m_LocalScale: {x: 0.9152054, y: 1, z: 1}
+  m_LocalPosition: {x: -18.77, y: 1.12, z: -3.2176}
+  m_LocalScale: {x: 0.98993224, y: 2.1554043, z: 1.0816503}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2072294128}
@@ -12282,11 +12311,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ceba17178db04d82a07e31904e08afb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teleportTarget: {fileID: 986862121}
+  teleportTarget: {fileID: 1380265350}
   playerTag: Player
   useTrigger: 1
-  offset: {x: 0, y: 0, z: 0}
+  offset: {x: 0, y: 0.5, z: 0}
   resetVelocity: 1
+  cooldownSeconds: 0.5
 --- !u!65 &1993016306
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -12306,8 +12336,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.99999994, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.000000059604645, z: 0}
 --- !u!23 &1993016307
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14091,6 +14121,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 7043853987381725298}
+    - targetCorrespondingSourceObject: {fileID: 6155410124049332851, guid: 82d538ac290ee5d4cbee1e021a136553,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7043853987381725309}
     - targetCorrespondingSourceObject: {fileID: 573018870787244047, guid: 82d538ac290ee5d4cbee1e021a136553,
         type: 3}
       insertIndex: -1
@@ -14273,6 +14307,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!65 &7043853987381725309
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7043853987381725288}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7088147331725107286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14444,6 +14499,7 @@ SceneRoots:
   - {fileID: 1597979840}
   - {fileID: 938012725}
   - {fileID: 22392665}
+  - {fileID: 986862121}
   - {fileID: 936551832}
   - {fileID: 1221856621}
   - {fileID: 1211094146}
@@ -14518,5 +14574,6 @@ SceneRoots:
   - {fileID: 279810865}
   - {fileID: 768995281}
   - {fileID: 406557939}
+  - {fileID: 1380265350}
   - {fileID: 379139295}
   - {fileID: 757210358}

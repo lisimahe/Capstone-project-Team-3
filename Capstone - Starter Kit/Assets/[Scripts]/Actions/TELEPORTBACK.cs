@@ -117,17 +117,38 @@ public class TELEPORTBACK : MonoBehaviour
                 return false;
             }
 
-            Debug.Log($"[BEFORE] {playerObject.name} position: {teleportTransform.position}");
+            // Check if this object has a CharacterController
+            CharacterController cc = playerObject.GetComponent<CharacterController>();
+            
+            // If the parent is a rig and this object has movement control, find the rig to move it instead
+            Transform targetToMove = teleportTransform;
+            if (playerObject.transform.parent != null && cc != null)
+            {
+                // The child with CharacterController should move, but we also move the parent to keep them synced
+                targetToMove = playerObject.transform;
+                Debug.Log($"Using child {playerObject.name} for teleport (has CharacterController)");
+            }
+
+            Debug.Log($"[BEFORE] {playerObject.name} position: {targetToMove.position}");
 
             // Calculate final position
             Vector3 targetPosition = teleportTarget.position + offset;
             Debug.Log($"Target position: {teleportTarget.position}, Offset: {offset}, Final target: {targetPosition}");
 
-            // Teleport the XR Rig root (camera will follow as a child)
-            teleportTransform.position = targetPosition;
-            teleportTransform.rotation = teleportTarget.rotation;
+            // Teleport the appropriate transform
+            targetToMove.position = targetPosition;
+            targetToMove.rotation = teleportTarget.rotation;
 
-            Debug.Log($"[AFTER] {playerObject.name} position: {teleportTransform.position}");
+            Debug.Log($"[AFTER] {playerObject.name} position: {targetToMove.position}");
+
+            // Also move parent if this is a child (to keep XR Rig and Player in sync)
+            if (playerObject.transform.parent != null)
+            {
+                Transform parentTransform = playerObject.transform.parent;
+                // Keep the parent at the same position as the child
+                parentTransform.position = targetToMove.position;
+                Debug.Log($"[SYNC] Moved parent {parentTransform.name} to {parentTransform.position}");
+            }
 
             // Reset physics
             ResetPlayerPhysics(playerObject);

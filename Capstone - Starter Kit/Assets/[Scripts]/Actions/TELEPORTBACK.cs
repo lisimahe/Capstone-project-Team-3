@@ -1,173 +1,100 @@
 using UnityEngine;
 
+/// <summary>
+/// Teleports the player back to a designated spawn point when they hit this trigger.
+/// SETUP INSTRUCTIONS:
+/// 1. Attach this script to a game object with a BoxCollider set as a TRIGGER
+/// 2. In Inspector, set "Teleport Target" to your spawn point (e.g., TeleportBackPoint)
+/// 3. Make sure player has tag "Player"
+/// 4. That's it! Player will teleport when they touch this trigger.
+/// </summary>
 public class TELEPORTBACK : MonoBehaviour
 {
-    [Header("Teleport Settings")]
+    [Header("Setup")]
     [SerializeField] private Transform teleportTarget;
+    [SerializeField] private Vector3 positionOffset = new Vector3(0, 0.5f, 0);
+    
+    [Header("Detection")]
     [SerializeField] private string playerTag = "Player";
-    [SerializeField] private bool useTrigger = true;
-    [SerializeField] private Vector3 offset = new Vector3(0, 0.5f, 0);
-    [SerializeField] private bool resetVelocity = true;
-    [SerializeField] private float cooldownSeconds = 0.5f;
-
-    private Collider triggerCollider;
+    [SerializeField] private float cooldownSeconds = 0.2f;
+    
     private float lastTeleportTime = -999f;
+    private Collider triggerCollider;
 
     private void Start()
     {
-        // Cache collider and validate setup
+        // Validate setup
         triggerCollider = GetComponent<Collider>();
-        
-        if (useTrigger && triggerCollider != null && !triggerCollider.isTrigger)
+        if (triggerCollider != null && !triggerCollider.isTrigger)
         {
-            Debug.LogWarning($"{name}: Using trigger mode but collider is not set as trigger. Enabling it.", gameObject);
             triggerCollider.isTrigger = true;
+            Debug.LogWarning($"{gameObject.name}: Collider was not set as trigger. Fixed automatically.", gameObject);
         }
 
         if (teleportTarget == null)
         {
-            Debug.LogError($"{name}: Teleport Target not assigned! Assign a target in the Inspector.", gameObject);
+            Debug.LogError($"{gameObject.name}: SETUP ERROR - Teleport Target is not assigned in Inspector!", gameObject);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!useTrigger)
-            return;
-
-        TeleportIfPlayer(other.gameObject);
+        CheckAndTeleport(other.gameObject);
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (!useTrigger)
-            return;
-
-        // Keep checking in case they're still in the trigger zone
-        TeleportIfPlayer(other.gameObject);
+        // Allow repeated teleports while player stays in trigger
+        CheckAndTeleport(other.gameObject);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void CheckAndTeleport(GameObject hitObject)
     {
-        if (useTrigger)
+        // Validate this is the player
+        if (hitObject == null || !hitObject.CompareTag(playerTag))
             return;
 
-        TeleportIfPlayer(collision.gameObject);
-    }
-
-    private void TeleportIfPlayer(GameObject playerObject)
-    {
-        // Null check
-        if (playerObject == null)
-        {
-            Debug.LogWarning("PlayerObject is null");
-            return;
-        }
-
-        Debug.Log($"Collision detected with: {playerObject.name}, tag: {playerObject.tag}");
-
-        // Tag check
-        if (!playerObject.CompareTag(playerTag))
-        {
-            Debug.Log($"Tag mismatch: object has '{playerObject.tag}', looking for '{playerTag}'");
-            return;
-        }
-
-        Debug.Log("Tag check passed");
-
-        // Cooldown check - prevent multiple teleports in quick succession
+        // Check cooldown to prevent spam
         if (Time.time - lastTeleportTime < cooldownSeconds)
-        {
-            Debug.Log($"Cooldown active. Last teleport was {Time.time - lastTeleportTime:F2}s ago");
             return;
-        }
 
-        Debug.Log("Cooldown check passed");
-
-        // Target validation
+        // Make sure target exists
         if (teleportTarget == null)
         {
-            Debug.LogError($"{name}: No teleport target assigned. Assign target in Inspector.", gameObject);
+            Debug.LogError($"{gameObject.name}: Teleport Target not assigned!", gameObject);
             return;
         }
 
-        Debug.Log("Target validation passed");
-
-        // Attempt teleport
-        if (TeleportPlayer(playerObject))
-        {
-            lastTeleportTime = Time.time;
-            Debug.Log($"Successfully teleported {playerObject.name} to {teleportTarget.name}");
-        }
-        else
-        {
-            Debug.LogError("TeleportPlayer returned false - check error logs above");
-        }
+        // Perform teleport
+        Teleport(hitObject);
     }
 
-    private bool TeleportPlayer(GameObject playerObject)
+    private void Teleport(GameObject playerObject)
     {
-        try
+        lastTeleportTime = Time.time;
+
+        Vector3 newPosition = teleportTarget.position + positionOffset;
+        
+        // Teleport the player
+        playerObject.transform.position = newPosition;
+        playerObject.transform.rotation = teleportTarget.rotation;
+        
+        // Also teleport the XR Rig parent if it exists
+        if (playerObject.transform.parent != null)
         {
-            Transform teleportTransform = playerObject.transform;
-
-            if (teleportTransform == null)
-            {
-                Debug.LogError($"Cannot find transform to teleport on {playerObject.name}", playerObject);
-                return false;
-            }
-
-            // Check if this object has a CharacterController
-            CharacterController cc = playerObject.GetComponent<CharacterController>();
-            
-            // If the parent is a rig and this object has movement control, find the rig to move it instead
-            Transform targetToMove = teleportTransform;
-            if (playerObject.transform.parent != null && cc != null)
-            {
-                // The child with CharacterController should move, but we also move the parent to keep them synced
-                targetToMove = playerObject.transform;
-                Debug.Log($"Using child {playerObject.name} for teleport (has CharacterController)");
-            }
-
-            Debug.Log($"[BEFORE] {playerObject.name} position: {targetToMove.position}");
-
-            // Calculate final position
-            Vector3 targetPosition = teleportTarget.position + offset;
-            Debug.Log($"Target position: {teleportTarget.position}, Offset: {offset}, Final target: {targetPosition}");
-
-            // Teleport the appropriate transform
-            targetToMove.position = targetPosition;
-            targetToMove.rotation = teleportTarget.rotation;
-
-            Debug.Log($"[AFTER] {playerObject.name} position: {targetToMove.position}");
-
-            // Also move parent if this is a child (to keep XR Rig and Player in sync)
-            if (playerObject.transform.parent != null)
-            {
-                Transform parentTransform = playerObject.transform.parent;
-                // Keep the parent at the same position as the child
-                parentTransform.position = targetToMove.position;
-                Debug.Log($"[SYNC] Moved parent {parentTransform.name} to {parentTransform.position}");
-            }
-
-            // Reset physics
-            ResetPlayerPhysics(playerObject);
-
-            return true;
+            playerObject.transform.parent.position = newPosition;
+            playerObject.transform.parent.rotation = teleportTarget.rotation;
         }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"Teleport failed: {ex.Message}", playerObject);
-            return false;
-        }
+
+        // Reset velocity to prevent momentum carryover
+        ResetVelocity(playerObject);
+
+        Debug.Log($"Teleported player and rig to {newPosition}");
     }
 
-    private void ResetPlayerPhysics(GameObject playerObject)
+    private void ResetVelocity(GameObject playerObject)
     {
-        if (!resetVelocity)
-            return;
-
-        // Reset Rigidbody (only if not kinematic)
+        // Reset Rigidbody if not kinematic
         Rigidbody rb = playerObject.GetComponent<Rigidbody>();
         if (rb != null && !rb.isKinematic)
         {
@@ -175,14 +102,14 @@ public class TELEPORTBACK : MonoBehaviour
             rb.angularVelocity = Vector3.zero;
         }
 
-        // Reset CharacterController
+        // Reset CharacterController if present
         CharacterController cc = playerObject.GetComponent<CharacterController>();
         if (cc != null && cc.enabled)
         {
             cc.Move(Vector3.zero);
         }
 
-        // Reset Rigidbody on children (XR controllers, etc.) - only if not kinematic
+        // Reset velocity on all child rigidbodies (controllers, etc.)
         foreach (Rigidbody childRb in playerObject.GetComponentsInChildren<Rigidbody>())
         {
             if (childRb != null && !childRb.isKinematic)
@@ -192,26 +119,5 @@ public class TELEPORTBACK : MonoBehaviour
             }
         }
     }
-
-    // Editor validation
-    private void OnValidate()
-    {
-        if (cooldownSeconds < 0.1f)
-            cooldownSeconds = 0.1f;
-    }
-
-    // Debug visualization
-    private void OnDrawGizmosSelected()
-    {
-        if (teleportTarget != null)
-        {
-            // Draw line from trigger to target
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(transform.position, teleportTarget.position);
-
-            // Draw target sphere
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(teleportTarget.position + offset, 0.3f);
-        }
-    }
 }
+

@@ -2896,6 +2896,9 @@ MonoBehaviour:
   xrMove: {fileID: 4206109053866980269}
   BASE_SPEED_XR: 3
   BASE_SPEED_DESKTOP: 15
+  sprintMultiplier: 2
+  sprintActionReference: {fileID: 0}
+  enableBuiltInXrSprintFallback: 1
   wasInteracting: 0
 --- !u!114 &2087409670489857113
 MonoBehaviour:

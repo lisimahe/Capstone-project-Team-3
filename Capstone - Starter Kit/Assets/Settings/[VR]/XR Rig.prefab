@@ -2502,6 +2502,7 @@ GameObject:
   - component: {fileID: 4206109053866980269}
   - component: {fileID: 6402278120221161940}
   - component: {fileID: 6330674294495511863}
+  - component: {fileID: 9123456789012345678}
   m_Layer: 6
   m_Name: XR Rig
   m_TagString: Player
@@ -2642,7 +2643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_System: {fileID: 8816976161060826836}
-  m_MoveSpeed: 100
+  m_MoveSpeed: 3
   m_EnableStrafe: 1
   m_EnableFly: 0
   m_UseGravity: 1
@@ -2715,6 +2716,28 @@ CharacterController:
   m_SkinWidth: 0.03
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9123456789012345678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6155410124049332851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e4c2a91f6d4e0a9c3b5d8e1f2a4c6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xrOrigin: {fileID: 2848162059036269670}
+  characterController: {fileID: 6330674294495511863}
+  teleportationProvider: {fileID: 4298900689401057625}
+  playerTag: Player
+  ensureTeleportProbe: 1
+  probeHeight: 1.75
+  probeRadius: 0.28
+  locomotionFreezeSeconds: 0.08
+  syncBodyChildren: 1
+  debugLogs: 0
 --- !u!1 &7016401820725615916
 GameObject:
   m_ObjectHideFlags: 0

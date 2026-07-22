@@ -1,71 +1,71 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.XR.CoreUtils;
+using MissionBit;
 
 /// <summary>
-/// Teleports the player (the XR Rig / XR Origin) back to a designated point.
+/// Kill-zone / "teleport back" volume that can fire repeatedly for the same XR Rig.
 ///
-/// This fixes the classic "the rig teleports but the player is left floating in
-/// the air" bug. The old version moved a child body AND its parent to the target
-/// position (doubling the offset) and dropped the rig at the target's Y - which,
-/// for a marker sitting at eye/torso height, left the player hanging above the
-/// floor. This version:
-///   * moves the XR ORIGIN transform (the true rig root) - never a child body,
-///   * never drags a parent container along with it,
-///   * snaps the rig's feet to the ground directly under the target so the
-///     player always lands on the floor instead of in the air,
-///   * clears CharacterController grounding and rigidbody momentum so the player
-///     doesn't carry old velocity or hang mid-air after arriving.
+/// Why the old version only worked once:
+///   Setting CharacterController transforms directly leaves Unity's trigger pair in a
+///   stuck "still overlapping" state, so OnTriggerEnter never fires again. Combined with
+///   moving the Origin by raw position (instead of MoveCameraToWorldLocation), the headset
+///   pose and any separate Player mesh drifted apart.
 ///
-/// SETUP:
-///   1. Put this on a GameObject with a Collider that has "Is Trigger" enabled.
-///   2. Assign "Teleport Target" (e.g. TeleportBackPoint).
-///   3. Make sure the XR Rig is tagged "Player" and has an XROrigin component.
-/// You can also drive it manually by calling Teleport() (e.g. from a UI button).
+/// This version:
+///   * routes every teleport through <see cref="PlayerTeleportBootstrap"/>
+///   * re-arms with a distance check (does NOT depend on OnTriggerExit)
+///   * ignores stale Stay overlaps until the player has left the volume
+///   * works with or without a visual Player child on the prefab
+///   * works for desktop XR Device Simulator and real headsets
 /// </summary>
 [DisallowMultipleComponent]
 public class TELEPORTBACK : MonoBehaviour
 {
     [Header("Target")]
-    [Tooltip("Where the player is sent back to. X/Z (and yaw) are always used; " +
-             "Y is only used directly when 'Snap To Ground' is off.")]
+    [Tooltip("Where the player is sent back to (floor point).")]
     [SerializeField] private Transform teleportTarget;
 
-    [Tooltip("Extra nudge applied at the destination. The Y component is only " +
-             "applied when 'Snap To Ground' is OFF (otherwise the floor decides Y).")]
+    [Tooltip("Added to the target position. Prefer Y=0 when Snap To Ground is on.")]
     [SerializeField] private Vector3 offset = Vector3.zero;
 
     [Tooltip("Rotate the player to face the target's yaw when arriving.")]
     [SerializeField] private bool matchYaw = true;
 
     [Header("Detection")]
-    [Tooltip("Automatically teleport when a collider tagged 'Player Tag' enters this trigger.")]
     [SerializeField] private bool useTrigger = true;
-
     [SerializeField] private string playerTag = "Player";
 
-    [Tooltip("Minimum seconds between teleports (prevents rapid re-triggering while inside the volume).")]
-    [SerializeField] private float cooldownSeconds = 0.5f;
+    [Tooltip("Minimum seconds between teleports from THIS volume.")]
+    [SerializeField] private float cooldownSeconds = 0.75f;
+
+    [Tooltip("How far outside this collider the player must travel before we re-arm.")]
+    [SerializeField] private float rearmPadding = 0.6f;
+
+    [Tooltip("Safety timeout — force re-arm even if distance check fails.")]
+    [SerializeField] private float forceRearmSeconds = 3f;
 
     [Header("Grounding")]
-    [Tooltip("Drop the rig onto the floor beneath the target so the player never hangs in the air.")]
     [SerializeField] private bool snapToGround = true;
-
-    [Tooltip("Layers treated as 'ground'. Leave as Nothing to use everything except the player's own layer.")]
     [SerializeField] private LayerMask groundMask = default;
-
-    [Tooltip("How far above the target to start the downward ground probe.")]
     [SerializeField] private float groundProbeHeight = 3f;
-
-    [Tooltip("How far down (below the probe start) to search for the ground.")]
     [SerializeField] private float groundProbeDistance = 25f;
 
     [Header("Physics")]
-    [Tooltip("Zero out rigidbody / character-controller momentum after teleporting.")]
     [SerializeField] private bool resetVelocity = true;
 
-    private float lastTeleportTime = -999f;
+    [Header("Debug")]
+    [SerializeField] private bool debugLogs = false;
 
-    // Auto-configure the collider as a trigger when the component is first added.
+    private float _lastTeleportTime = -999f;
+    private bool _armed = true;
+    private Coroutine _rearmRoutine;
+    private Collider _volume;
+
+    // Track colliders we have already consumed while disarmed (avoids Stay spam).
+    private readonly HashSet<int> _ignoredWhileDisarmed = new HashSet<int>();
+
     private void Reset()
     {
         var col = GetComponent<Collider>();
@@ -73,17 +73,38 @@ public class TELEPORTBACK : MonoBehaviour
             col.isTrigger = true;
     }
 
+    private void Awake()
+    {
+        _volume = GetComponent<Collider>();
+    }
+
     private void Start()
     {
-        var col = GetComponent<Collider>();
-        if (col != null && !col.isTrigger)
+        if (_volume == null)
+            _volume = GetComponent<Collider>();
+
+        if (_volume != null && !_volume.isTrigger)
         {
-            col.isTrigger = true;
+            _volume.isTrigger = true;
             Debug.LogWarning($"{name}: TELEPORTBACK collider was not a trigger. Fixed automatically.", this);
         }
 
         if (teleportTarget == null)
-            Debug.LogError($"{name}: TELEPORTBACK has no Teleport Target assigned in the Inspector!", this);
+            Debug.LogError($"{name}: TELEPORTBACK has no Teleport Target assigned!", this);
+
+        // Warm the bootstrap so the first trigger is never racing Awake order.
+        PlayerTeleportBootstrap.FindOrCreate();
+    }
+
+    private void OnDisable()
+    {
+        if (_rearmRoutine != null)
+        {
+            StopCoroutine(_rearmRoutine);
+            _rearmRoutine = null;
+        }
+        _armed = true;
+        _ignoredWhileDisarmed.Clear();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -93,114 +114,196 @@ public class TELEPORTBACK : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        // Keep re-checking while the player lingers, but the cooldown throttles it.
-        if (useTrigger) TryTeleport(other);
+        // Only useful while armed. While disarmed, Stay would just spam.
+        if (useTrigger && _armed) TryTeleport(other);
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other == null) return;
+        _ignoredWhileDisarmed.Remove(other.GetInstanceID());
+
+        // Exit is best-effort — CharacterController teleports often skip it.
+        // Distance-based re-arm below is the reliable path.
+        if (!_armed && IsPlayerCollider(other))
+            TryImmediateRearm();
     }
 
     private void TryTeleport(Collider other)
     {
-        if (other == null) return;
-        if (Time.time - lastTeleportTime < cooldownSeconds) return;
+        if (other == null || !_armed) return;
+        if (Time.time - _lastTeleportTime < cooldownSeconds) return;
+        if (teleportTarget == null) return;
 
-        Transform rig = ResolveRig(other);
+        if (!IsPlayerCollider(other)) return;
+
+        var bootstrap = PlayerTeleportBootstrap.FindOrCreate();
+        if (bootstrap == null) return;
+
+        Transform rig = bootstrap.OriginTransform;
         if (rig == null) return;
 
-        DoTeleport(rig);
-    }
+        Vector3 floor = ResolveFloorDestination(rig);
 
-    /// <summary>Public entry point (e.g. hook to a UI button). Finds the tagged player automatically.</summary>
-    public void Teleport()
-    {
-        Transform rig = ResolveRig(null);
-        if (rig != null)
-            DoTeleport(rig);
-        else
-            Debug.LogWarning($"{name}: TELEPORTBACK.Teleport() could not find an XR Origin or a '{playerTag}' object.", this);
-    }
+        _armed = false;
+        _lastTeleportTime = Time.time;
+        _ignoredWhileDisarmed.Add(other.GetInstanceID());
 
-    /// <summary>Teleport a specific rig transform (bypasses discovery).</summary>
-    public void Teleport(Transform rig)
-    {
-        if (rig != null)
-            DoTeleport(rig);
-    }
+        bool ok = bootstrap.TeleportToFloor(
+            floor,
+            matchYaw ? teleportTarget.rotation : (Quaternion?)null,
+            matchYaw);
 
-    /// <summary>
-    /// Works out which transform actually represents the player rig. Moving the
-    /// XR Origin is what correctly repositions the headset view, so we prefer it.
-    /// </summary>
-    private Transform ResolveRig(Collider other)
-    {
-        if (other != null)
+        if (!ok)
         {
-            // 1) The real XR Origin (this is the transform that must move).
-            var origin = other.GetComponentInParent<XROrigin>();
-            if (origin != null) return origin.transform;
-
-            // 2) Otherwise, the nearest ancestor carrying the player tag.
-            for (Transform t = other.transform; t != null; t = t.parent)
-                if (t.CompareTag(playerTag)) return t;
+            // Hard fallback — still better than leaving the player in the kill zone.
+            FallbackTeleport(rig, floor);
         }
 
-        // 3) Manual / no-collider path: search the scene.
-        var originInScene = FindObjectOfType<XROrigin>();
-        if (originInScene != null) return originInScene.transform;
+        if (resetVelocity)
+            ResetVelocity(rig);
 
-        var tagged = GameObject.FindWithTag(playerTag);
-        return tagged != null ? tagged.transform : null;
+        if (debugLogs)
+            Debug.Log($"[TELEPORTBACK] '{name}' -> {floor} (armed=false, will re-arm on leave).", this);
+
+        if (_rearmRoutine != null)
+            StopCoroutine(_rearmRoutine);
+        _rearmRoutine = StartCoroutine(RearmWhenClear(bootstrap));
     }
 
-    private void DoTeleport(Transform rig)
+    /// <summary>Public entry (UI button / UnityEvent). Always allowed subject to cooldown.</summary>
+    public void Teleport()
     {
-        if (teleportTarget == null)
+        if (Time.time - _lastTeleportTime < cooldownSeconds) return;
+
+        var bootstrap = PlayerTeleportBootstrap.FindOrCreate();
+        if (bootstrap == null)
         {
-            Debug.LogError($"{name}: Teleport Target not assigned!", this);
+            Debug.LogWarning($"{name}: TELEPORTBACK.Teleport() — no bootstrap/XROrigin.", this);
             return;
         }
 
-        lastTeleportTime = Time.time;
+        _armed = false;
+        _lastTeleportTime = Time.time;
 
-        // Horizontal placement first; Y is decided below.
+        Vector3 floor = ResolveFloorDestination(bootstrap.OriginTransform);
+        bootstrap.TeleportToFloor(floor, matchYaw ? teleportTarget.rotation : (Quaternion?)null, matchYaw);
+
+        if (_rearmRoutine != null)
+            StopCoroutine(_rearmRoutine);
+        _rearmRoutine = StartCoroutine(RearmWhenClear(bootstrap));
+    }
+
+    public void Teleport(Transform rig)
+    {
+        if (rig == null) return;
+        Teleport();
+    }
+
+    private bool IsPlayerCollider(Collider other)
+    {
+        if (other == null) return false;
+
+        // Prefer XROrigin anywhere in parents — works even if Player mesh was deleted.
+        if (other.GetComponentInParent<XROrigin>() != null)
+            return true;
+
+        if (other.GetComponentInParent<PlayerTeleportBootstrap>() != null)
+            return true;
+
+        for (Transform t = other.transform; t != null; t = t.parent)
+        {
+            if (!string.IsNullOrEmpty(playerTag) && t.CompareTag(playerTag))
+                return true;
+        }
+
+        return false;
+    }
+
+    private Vector3 ResolveFloorDestination(Transform rig)
+    {
+        // Match original semantics: XZ always take offset; Y offset only when not ground-snapping
+        // (otherwise ground decides Y and a leftover +0.5 would float the player).
         Vector3 destination = teleportTarget.position + new Vector3(offset.x, 0f, offset.z);
 
         if (snapToGround)
         {
-            destination.y = TryFindGround(rig, destination, out float groundY)
-                ? groundY
-                : teleportTarget.position.y; // best effort - no arbitrary lift that would float the player
+            if (TryFindGround(rig, destination, out float groundY))
+                destination.y = groundY;
+            else
+                destination.y = teleportTarget.position.y;
         }
         else
         {
             destination.y = teleportTarget.position.y + offset.y;
         }
 
-        // Disable the CharacterController while we hard-set the position so it
-        // neither fights the move nor re-applies its previous grounded state.
-        CharacterController cc = rig.GetComponent<CharacterController>();
-        bool ccWasEnabled = cc != null && cc.enabled;
-        if (cc != null) cc.enabled = false;
-
-        rig.position = destination;
-
-        if (matchYaw)
-            rig.rotation = Quaternion.Euler(0f, teleportTarget.eulerAngles.y, 0f);
-
-        if (cc != null) cc.enabled = ccWasEnabled;
-
-        if (resetVelocity)
-            ResetVelocity(rig);
-
-        Debug.Log($"[TELEPORTBACK] Sent '{rig.name}' to {destination} (grounded: {snapToGround}).", this);
+        return destination;
     }
 
-    /// <summary>Raycast straight down from above the destination to find the floor.</summary>
+    private IEnumerator RearmWhenClear(PlayerTeleportBootstrap bootstrap)
+    {
+        float start = Time.unscaledTime;
+
+        // Give physics a frame to settle after the teleport.
+        yield return null;
+        Physics.SyncTransforms();
+        yield return null;
+
+        while (!_armed)
+        {
+            if (Time.unscaledTime - start >= forceRearmSeconds)
+            {
+                if (debugLogs)
+                    Debug.Log($"[TELEPORTBACK] '{name}' force re-armed after timeout.", this);
+                break;
+            }
+
+            if (!IsRigStillInVolume(bootstrap))
+                break;
+
+            yield return null;
+        }
+
+        _armed = true;
+        _ignoredWhileDisarmed.Clear();
+        _rearmRoutine = null;
+
+        if (debugLogs)
+            Debug.Log($"[TELEPORTBACK] '{name}' re-armed.", this);
+    }
+
+    private void TryImmediateRearm()
+    {
+        var bootstrap = PlayerTeleportBootstrap.Instance ?? PlayerTeleportBootstrap.FindOrCreate();
+        if (bootstrap == null) return;
+        if (IsRigStillInVolume(bootstrap)) return;
+
+        _armed = true;
+        _ignoredWhileDisarmed.Clear();
+        if (_rearmRoutine != null)
+        {
+            StopCoroutine(_rearmRoutine);
+            _rearmRoutine = null;
+        }
+    }
+
+    private bool IsRigStillInVolume(PlayerTeleportBootstrap bootstrap)
+    {
+        if (bootstrap == null || _volume == null)
+            return false;
+
+        Bounds b = _volume.bounds;
+        return bootstrap.IsNearBounds(b, rearmPadding);
+    }
+
     private bool TryFindGround(Transform rig, Vector3 destination, out float groundY)
     {
         groundY = 0f;
 
         int mask = groundMask.value;
-        if (mask == 0) // unconfigured -> everything except the rig's own layer
-            mask = ~(1 << rig.gameObject.layer);
+        if (mask == 0)
+            mask = ~(1 << (rig != null ? rig.gameObject.layer : 0));
 
         Vector3 start = new Vector3(destination.x, teleportTarget.position.y + groundProbeHeight, destination.z);
         float distance = groundProbeHeight + groundProbeDistance;
@@ -214,7 +317,22 @@ public class TELEPORTBACK : MonoBehaviour
         return false;
     }
 
-    private void ResetVelocity(Transform rig)
+    private void FallbackTeleport(Transform rig, Vector3 floor)
+    {
+        CharacterController cc = rig.GetComponent<CharacterController>();
+        bool ccOn = cc != null && cc.enabled;
+        if (cc != null) cc.enabled = false;
+
+        rig.position = floor;
+        if (matchYaw && teleportTarget != null)
+            rig.rotation = Quaternion.Euler(0f, teleportTarget.eulerAngles.y, 0f);
+
+        Physics.SyncTransforms();
+        if (cc != null) cc.enabled = ccOn;
+        Physics.SyncTransforms();
+    }
+
+    private static void ResetVelocity(Transform rig)
     {
         foreach (Rigidbody rb in rig.GetComponentsInChildren<Rigidbody>(true))
         {
@@ -225,5 +343,14 @@ public class TELEPORTBACK : MonoBehaviour
             }
         }
     }
-}
 
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (teleportTarget == null) return;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(teleportTarget.position + offset, 0.25f);
+        Gizmos.DrawLine(transform.position, teleportTarget.position + offset);
+    }
+#endif
+}

@@ -59,7 +59,7 @@
                 {
                     "name": "down",
                     "id": "7040cb3a-be6e-405a-8ef3-af144f9b84f8",
-                    "path": "<Keyboard>/d",
+                    "path": "<Keyboard>/s",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -170,6 +170,28 @@
                     "name": "",
                     "id": "e6fceedf-67ac-44a2-81f1-00867130d25e",
                     "path": "<XRController>/thumbstickClicked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a4c8e2b1-9f0d-4e7a-b3c5-1d2e3f4a5b6c",
+                    "path": "<XRController>{LeftHand}/thumbstickClicked",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Run",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b5d9f3c2-0e1a-5f8b-c4d6-2e3f4a5b6c7d",
+                    "path": "<XRController>{LeftHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

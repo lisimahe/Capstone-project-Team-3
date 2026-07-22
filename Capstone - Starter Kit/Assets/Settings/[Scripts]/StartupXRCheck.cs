@@ -90,23 +90,29 @@ namespace MissionBit
 
             Instance = this;
 
-            if (XRGeneralSettings.Instance.Manager.activeLoader != null)
+            if (XRGeneralSettings.Instance != null
+                && XRGeneralSettings.Instance.Manager != null
+                && XRGeneralSettings.Instance.Manager.activeLoader != null)
             {
-                //xrInteractionManger.enabled = true;
-
                 if (QualitySettings.lodBias <= 1)
                     QualitySettings.lodBias *= 3.8f;
 
                 IsDeviceConnected = true;
 
-                XRRig.SetActive(true);
-                XRDesktop.SetActive(false);
+                if (XRRig != null)
+                    XRRig.SetActive(true);
+                else
+                    Debug.LogError("[StartupXRCheck] XRRig is not assigned. Drag Assets/Settings/[VR]/XR Rig.prefab into the scene and assign it.", this);
 
-                if (IsXRInteractions)
+                if (XRDesktop != null)
+                    XRDesktop.SetActive(false);
+
+                if (IsXRInteractions && XRControls != null)
                 {
                     foreach (GameObject controller in XRControls)
                     {
-                        controller.SetActive(true);
+                        if (controller != null)
+                            controller.SetActive(true);
                     }
                 }
             }
@@ -114,35 +120,45 @@ namespace MissionBit
             {
                 IsDeviceConnected = false;
 
-                //xrInteractionManger.enabled = false;
-                XRDesktop.SetActive(true);
+                if (XRDesktop != null)
+                    XRDesktop.SetActive(true);
 
-                foreach (GameObject controller in XRControls)
+                if (XRControls != null)
                 {
-                    controller.SetActive(false);
+                    foreach (GameObject controller in XRControls)
+                    {
+                        if (controller != null)
+                            controller.SetActive(false);
+                    }
                 }
+
+                // Desktop simulator still needs an XR Origin in the scene.
+                if (XRRig != null)
+                    XRRig.SetActive(true);
             }
-
-
         }
 
 
         private void Start()
         {
-
-            if (PlayerInput.actions != InputManager)
+            if (PlayerInput != null)
             {
-                PlayerInput.actions = InputManager;
+                if (InputManager != null && PlayerInput.actions != InputManager)
+                    PlayerInput.actions = InputManager;
 
+                PlayerInput.enabled = true;
             }
 
-            PlayerInput.enabled = true;
-
             Cursor.visible = false;
-            playerModel.enabled = false;
+
+            if (playerModel != null)
+                playerModel.enabled = false;
 
             mainCamera = Camera.main;
-            head = mainCamera.transform;
+            if (mainCamera != null)
+                head = mainCamera.transform;
+            else
+                Debug.LogError("[StartupXRCheck] No Main Camera found. Is XR Rig missing from the scene?", this);
         }
     }
 }

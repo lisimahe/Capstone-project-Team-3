@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
@@ -16,11 +15,16 @@ public class FireworksRadius : MonoBehaviour
     [SerializeField] private float radius = 5f;
 
     [Header("Fireworks")]
-    [Tooltip("Firework prefabs to instantiate when the player enters the radius.")]
-    [SerializeField] private List<GameObject> fireworks = new List<GameObject>();
+    [Tooltip("The firework prefab to instantiate when the player enters the radius.")]
+    [SerializeField] private GameObject fireworkPrefab;
 
-    [Tooltip("Optional spawn points. If empty, fireworks spawn at this object's position and rotation.")]
-    [SerializeField] private List<Transform> spawnPoints = new List<Transform>();
+    [Tooltip("How many copies of the firework prefab to spawn around the circle.")]
+    [Min(1)]
+    [SerializeField] private int fireworksToSpawn = 8;
+
+    [Tooltip("Distance from this object to place the fireworks around the circle.")]
+    [Min(0f)]
+    [SerializeField] private float spawnCircleRadius = 5f;
 
     [Tooltip("Also check for a player already inside the radius. This makes the trigger reliable when the player is spawned inside it or has no Rigidbody.")]
     [SerializeField] private bool pollForPlayer = true;
@@ -105,22 +109,9 @@ public class FireworksRadius : MonoBehaviour
         if (hasTriggered)
             return;
 
-        if (fireworks == null)
-            return;
-
-        bool hasValidPrefab = false;
-        for (int i = 0; i < fireworks.Count; i++)
+        if (fireworkPrefab == null)
         {
-            if (fireworks[i] != null)
-            {
-                hasValidPrefab = true;
-                break;
-            }
-        }
-
-        if (!hasValidPrefab)
-        {
-            Debug.LogWarning($"{nameof(FireworksRadius)} on {name} has no firework prefabs assigned.", this);
+            Debug.LogWarning($"{nameof(FireworksRadius)} on {name} has no firework prefab assigned.", this);
             return;
         }
 
@@ -128,24 +119,24 @@ public class FireworksRadius : MonoBehaviour
         // cause a second launch during the same frame.
         hasTriggered = true;
 
-        int spawnPointCount = spawnPoints == null ? 0 : spawnPoints.Count;
-        for (int i = 0; i < fireworks.Count; i++)
+        for (int i = 0; i < fireworksToSpawn; i++)
         {
-            GameObject prefab = fireworks[i];
-            if (prefab == null)
-                continue;
+            float angle = i * (360f / fireworksToSpawn) * Mathf.Deg2Rad;
+            Vector3 offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * spawnCircleRadius;
+            Vector3 spawnPosition = transform.position + offset;
+            Quaternion spawnRotation = spawnCircleRadius > 0f
+                ? Quaternion.LookRotation(-offset.normalized, Vector3.up)
+                : transform.rotation;
 
-            Transform point = spawnPointCount > 0 ? spawnPoints[i % spawnPointCount] : transform;
-            if (point == null)
-                point = transform;
-
-            Instantiate(prefab, point.position, point.rotation);
+            Instantiate(fireworkPrefab, spawnPosition, spawnRotation);
         }
     }
 
     private void OnValidate()
     {
         radius = Mathf.Max(0.01f, radius);
+        fireworksToSpawn = Mathf.Max(1, fireworksToSpawn);
+        spawnCircleRadius = Mathf.Max(0f, spawnCircleRadius);
 
         if (radiusCollider == null)
             radiusCollider = GetComponent<SphereCollider>();
